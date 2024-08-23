@@ -1,3 +1,5 @@
+import Base64 from 'crypto-js/enc-base64';
+import sha256 from 'crypto-js/sha256';
 import * as React from 'react';
 
 import { fetchConfigs } from '~/api/configs';
@@ -19,8 +21,9 @@ const mapState = (s: State) => ({
   apiConfig: getClashAPIConfig(s),
 });
 
-function APIConfig({ dispatch }) {
-  const [baseURL, setBaseURL] = useState('');
+function APIConfig({ apiConfig, dispatch }) {
+  const defURL = apiConfig ? apiConfig.baseURL : '';
+  const [baseURL, setBaseURL] = useState(defURL);
   const [secret, setSecret] = useState('');
   const [errMsg, setErrMsg] = useState('');
 
@@ -59,11 +62,12 @@ function APIConfig({ dispatch }) {
         unconfirmedBaseURL = `${window.location.protocol}//${unconfirmedBaseURL}`;
       }
     }
-    verify({ baseURL: unconfirmedBaseURL, secret }).then((ret) => {
+    const encPass = Base64.stringify(sha256(secret));
+    verify({ baseURL: unconfirmedBaseURL, secret: encPass }).then((ret) => {
       if (ret[0] !== Ok) {
         setErrMsg(ret[1]);
       } else {
-        dispatch(addClashAPIConfig({ baseURL: unconfirmedBaseURL, secret }));
+        dispatch(addClashAPIConfig({ baseURL: unconfirmedBaseURL, secret: encPass }));
       }
     });
   }, [baseURL, secret, dispatch]);
@@ -111,7 +115,7 @@ function APIConfig({ dispatch }) {
             name="baseURL"
             label="API Base URL"
             type="text"
-            placeholder="http://127.0.0.1:9090"
+            placeholder={defURL}
             value={baseURL}
             onChange={handleInputOnChange}
           />

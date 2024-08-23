@@ -1,8 +1,7 @@
 import cx from 'clsx';
 import * as React from 'react';
-import { Eye, EyeOff, X as Close } from 'react-feather';
+import { X as Close } from 'react-feather';
 
-import { useToggle } from '~/hooks/basic';
 import { getClashAPIConfigs, getSelectedClashAPIConfigIndex } from '~/store/app';
 import { ClashAPIConfig } from '~/types';
 
@@ -82,9 +81,6 @@ function Item({
   onRemove: (x: ClashAPIConfig) => void;
   onSelect: (x: ClashAPIConfig) => void;
 }) {
-  const [show, toggle] = useToggle();
-  const Icon = show ? EyeOff : Eye;
-
   const handleTap = React.useCallback((e: React.KeyboardEvent) => {
     e.stopPropagation();
   }, []);
@@ -110,12 +106,7 @@ function Item({
       <span />
       {secret ? (
         <>
-          <span className={s.secret}>{show ? secret : '***'}</span>
-
-          {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'boolean | (() => void)' is not assignable to... Remove this comment to see the full error message */}
-          <Button onClick={toggle} className={s.eye}>
-            <Icon size={20} />
-          </Button>
+          <span className={s.secret}>***</span>
         </>
       ) : null}
     </>
